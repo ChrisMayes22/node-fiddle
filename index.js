@@ -21,8 +21,8 @@ switch(command){
     case 'read':
         notes.read(argv.title);
         break;
-    case 'delete':
-        notes.delete(argv.title);
+    case 'remove':
+        notes.remove(argv.title);
         break;
     default:
     console.log('Command not recognized')
