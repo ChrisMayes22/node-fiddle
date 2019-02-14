@@ -59,7 +59,7 @@ function Crud(){
         console.log(`Body of item: ${body}`)
         return body;
     };
-    this.remove = (title) => {
+    this.delete = (title) => {
         console.log(`Removing note with title ${title}`);
         const cache = queryTitle(title);
         if(catchError(cache, 'ERR: Title not found')){
@@ -69,7 +69,8 @@ function Crud(){
         console.log('Removing item:', data[targetIndex]);
         data.splice(targetIndex, 1);
         fs.writeFileSync('./data/notes.json', JSON.stringify(data));
-        cache[title] = null;
+        delete cache[title];
+        console.log('CACHE', cache);
         fs.writeFileSync('./data/cache.json', JSON.stringify(cache));  
         return data;
     };
