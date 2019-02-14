@@ -6,18 +6,16 @@ function fetchNotes(){
         const notes = JSON.parse(fs.readFileSync('./data/notes.json'));
         return notes;
     } catch (e){
-        const notes = [];
-        return notes;
+        return [];
     }
 }
 
 function fetchCache(){
     try{
-        const cache = JSON.parse(fs.readFileSync('./data/cache.json'));
+        const cache = JSON.parse(fs.readFileSync('./data/cache.json')); 
         return cache;
     } catch (e){
-        const cache = {};
-        return cache;
+        return {};
     }
 }
 
@@ -30,15 +28,22 @@ function queryTitle(title){
         }
 }
 
+function catchError(condition, errCode){
+    if(!condition){
+        console.log(errCode)
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function Crud(){
     this.add = (title, body) => {
-        const cache = fetchCache();  
-        if(cache[title]){
-            console.log('ERR: An item with that title already exists.')
+        const cache = fetchCache();
+        if(catchError(!cache[title], 'ERR: An item with that title already exists.')){
             return null;
         }
-        const note = {title, body}
-        const notes = fetchNotes();
+        const note = {title, body}, notes = fetchNotes();
         notes.push(note);
         fs.writeFileSync('./data/notes.json', JSON.stringify(notes));
         cache[title] = title;
@@ -47,23 +52,20 @@ function Crud(){
     };
     this.read = (title) => {
         console.log(`Reading note with title ${title}`);
-        if(!queryTitle(title)){
-            console.log('ERR: Title not found')
+        if(catchError(queryTitle(title), 'ERR: Title not found')){
+            return null;
         }
-        const data = fetchNotes();
-        const target = data.find(item => item.title === title);
-        console.log(`BODY OF ITEM: ${target.body}`)
-        return target;
+        const body = fetchNotes().find(item => item.title === title).body;
+        console.log(`Body of item: ${body}`)
+        return body;
     };
     this.remove = (title) => {
         console.log(`Removing note with title ${title}`);
         const cache = queryTitle(title);
-        if(!cache){
-            console.log('ERR: Title not found')
+        if(catchError(cache, 'ERR: Title not found')){
             return null;
         }
-        const data = fetchNotes();
-        const targetIndex = data.findIndex(item => item.title === title);
+        const data = fetchNotes(), targetIndex = data.findIndex(item => item.title === title);
         console.log('Removing item:', data[targetIndex]);
         data.splice(targetIndex, 1);
         fs.writeFileSync('./data/notes.json', JSON.stringify(data));
@@ -73,21 +75,20 @@ function Crud(){
     };
     this.update = (title, payload) => {
         console.log(`Updating body of note with title ${title}`);
-        if(!queryTitle(title)){
-            console.log('ERR: Title not found')
+        if(catchError(queryTitle(title), 'ERR: Title not found')){
             return null;
         }
         const notes = fetchNotes();
         const target = notes.find(item => item.title === title);
         target.body = payload;
+        console.log(`New Body: ${target.body}`);
         fs.writeFileSync('./data/notes.json', JSON.stringify(notes));
         return target;
     };
     this.list = () => {
         console.log(`Listing all notes`);
         const data = fetchNotes();
-        if(!data){
-            console.log('ERR: No data found in database')
+        if(catchError(data, 'ERR: No data found in database')){
             return null;
         }
         data.forEach((item, i) => {
