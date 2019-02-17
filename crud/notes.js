@@ -65,12 +65,9 @@ function Crud(){
         if(catchError(cache, 'ERR: Title not found')){
             return null;
         }
-        const data = fetchNotes(), targetIndex = data.findIndex(item => item.title === title);
-        console.log('Removing item:', data[targetIndex]);
-        data.splice(targetIndex, 1);
+        const data = fetchNotes().filter(item => item.title !== title)
         fs.writeFileSync('./data/notes.json', JSON.stringify(data));
         delete cache[title];
-        console.log('CACHE', cache);
         fs.writeFileSync('./data/cache.json', JSON.stringify(cache));  
         return data;
     };
